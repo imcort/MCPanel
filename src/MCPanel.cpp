@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "MCPanel.h"
 
+extern "C" void espShow(uint8_t pin, uint8_t *pixels, uint32_t numBytes);
 
 // uint8_t ReverseBits(uint8_t ch){
 // ch = (ch & 0x55) << 1 | (ch >> 1) & 0x55;
@@ -19,12 +20,13 @@
 // return chn;
 // }
 
-MCPanel::MCPanel(uint8_t strobe, uint8_t clock, uint8_t data) {
+MCPanel::MCPanel() {
   
-  STROBE_IO = strobe;
-  DATA_IO = data;
-  CLOCK_IO = clock;
+  STROBE_IO = TM1629_STROBE_PIN;
+  DATA_IO = TM1629_DATA_PIN;
+  CLOCK_IO = TM1629_CLOCK_PIN;
 
+  LED_IO = TM1812_LED_PIN;
 }
 
 void MCPanel::begin(){
@@ -39,6 +41,13 @@ void MCPanel::begin(){
   reset();
 
   oldButtons = readButtons();
+  
+  //TM1812-Part
+  pinMode(LED_IO, OUTPUT);
+  for(int i=0;i<LED_NUM;i++)
+    LEDCache[i] = 0x01;
+  LEDCache[8] = 100;
+  updateLED();
 
 }
 
@@ -201,4 +210,10 @@ void MCPanel::buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDo
     oldButtons = buttons;
   }
 
+}
+
+void MCPanel::updateLED(){
+
+  espShow(TM1812_LED_PIN,LEDCache,LED_NUM);
+  digitalWrite(TM1812_LED_PIN,HIGH);
 }

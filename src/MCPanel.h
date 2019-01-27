@@ -9,17 +9,29 @@
 #include "Arduino.h"
 #include "PCF8575.h" 
 
+///Interface Defines:
+#define TM1629_STROBE_PIN   8
+#define TM1629_CLOCK_PIN    9
+#define TM1629_DATA_PIN     10
+
+#define TM1812_LED_PIN      32
+
+//TM1629 Defines:
 #define ACTIVATE 0x8f
 #define BUTTONS 0x42
 #define WRITE_LOC 0x44
 #define WRITE_INC 0x40
-
 #define BRIGHTNESS 0x80
+
+#define DIGIT_NUM 16
+
+//TM1812 Defines:
+#define LED_NUM 36
 
 class MCPanel
 {
   public:
-    MCPanel(uint8_t strobe, uint8_t clock, uint8_t data);
+    MCPanel();
 
     void begin();
     void sendCommand(uint8_t value);
@@ -32,13 +44,17 @@ class MCPanel
     void updateDisplay();
     void displayNumber(uint16_t alt, uint16_t spd, int16_t vs, uint16_t hdg);
     void buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDownFunc)(uint8_t));
+    void updateLED();
 
   private:
-    uint8_t displayCache[16];
+    uint8_t displayCache[DIGIT_NUM];
     PCF8575 expander;
     uint8_t STROBE_IO;
     uint8_t DATA_IO;
     uint8_t CLOCK_IO;
+    uint8_t LED_IO;
+
+    uint8_t LEDCache[LED_NUM];
     uint32_t oldButtons;
 };
 
