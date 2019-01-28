@@ -174,24 +174,32 @@ void MCPanel::displayHex(uint8_t position, uint8_t hex) {
 void MCPanel::displayNumber(int16_t alt, int16_t spd, int16_t vs, int16_t hdg) {
 
   String textTemp = (String)alt;
+  clearPos(0,4,false);
   if(textTemp.length() <= 5){
-    clearPos(0,4,false);
     displayText(textTemp,5-textTemp.length(),false);
+  }else{
+    displayText("Err",1,false);
   }
   textTemp = (String)spd;
+  clearPos(5,7,false);
   if(textTemp.length() <= 3){
-    clearPos(5,7,false);
     displayText(textTemp,8-textTemp.length(),false);
+  }else{
+    displayText("Err",5,false);
   }
   textTemp = (String)vs;
+  clearPos(8,12,false);
   if(textTemp.length() <= 5){
-    clearPos(8,12,false);
     displayText(textTemp,13-textTemp.length(),false);
+  }else{
+    displayText("Err",9,false);
   }
   textTemp = (String)hdg;
+  clearPos(13,15,false);
   if(textTemp.length() <= 3){
-    clearPos(13,15,false);
     displayText(textTemp,16-textTemp.length(),false);
+  }else{
+    displayText("Err",13,false);
   }
   updateDisplay();
 
