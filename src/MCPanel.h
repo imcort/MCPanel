@@ -8,6 +8,7 @@
 
 #include "Arduino.h"
 #include "PCF8575.h" 
+#include "esp32-hal.h"
 
 ///Interface Defines:
 #define TM1629_STROBE_PIN   8
@@ -43,14 +44,16 @@ class MCPanel
     void displayASCII(uint8_t position, uint8_t ascii);
     void displayHex(uint8_t position, uint8_t hex);
     void updateDisplay();
-    void displayNumber(uint16_t alt, uint16_t spd, int16_t vs, uint16_t hdg);
+    void displayNumber(int16_t alt, int16_t spd, int16_t vs, int16_t hdg);
     void buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDownFunc)(uint8_t));
     void updateLED();
 
-    bool enc_update();
+    bool encUpdate(uint8_t res);
     int enc_position[4];
 
   private:
+
+    uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder);
     uint8_t displayCache[DIGIT_NUM];
     PCF8575 expander;
     uint8_t STROBE_IO;
@@ -58,9 +61,11 @@ class MCPanel
     uint8_t CLOCK_IO;
     uint8_t LED_IO;
 
+    //TM1812
     uint8_t LEDCache[LED_NUM];
+    rmt_obj_t* rmt_send;
     uint32_t oldButtons;
-
+    //Encoder
     uint8_t state[4];
     
 };

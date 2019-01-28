@@ -1,7 +1,8 @@
 #include "Arduino.h"
 #include "MCPanel.h"
+#include "esp32-hal.h"
 
-extern "C" void espShow(uint8_t pin, uint8_t *pixels, uint32_t numBytes);
+//extern "C" void espShow(uint8_t pin, uint8_t *pixels, uint32_t numBytes);
 
 // uint8_t ReverseBits(uint8_t ch){
 // ch = (ch & 0x55) << 1 | (ch >> 1) & 0x55;
@@ -54,9 +55,11 @@ void MCPanel::begin(){
   oldButtons = readButtons();
   
   //TM1812-Part
-  pinMode(LED_IO, OUTPUT);
+  //pinMode(LED_IO, OUTPUT);
+  rmt_send = rmtInit(32, true, RMT_MEM_64);
+  rmtSetTick(rmt_send, 100);
   for(int i=0;i<LED_NUM;i++)
-    LEDCache[i] = 0x01;
+    LEDCache[i] = 0x02;
   LEDCache[8] = 100;
   updateLED();
 
@@ -83,6 +86,23 @@ void MCPanel::reset() {
   clearPos(0,15);
 }
 
+uint8_t MCPanel::shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
+    uint8_t value = 0;
+    uint8_t i;
+	  expander.digitalWrite(dataPin, HIGH);
+    for(i = 0; i < 8; ++i) {
+        expander.digitalWrite(clockPin, HIGH);
+        uint16_t gpidRead = expander.read();
+        encUpdate(gpidRead & 0xff);
+        if(bitOrder == LSBFIRST)
+            value |= ((gpidRead & (1 << dataPin)) ? HIGH : LOW) << i;
+        else
+            value |= ((gpidRead & (1 << dataPin)) ? HIGH : LOW) << (7 - i);
+        expander.digitalWrite(clockPin, LOW);
+    }
+    return value;
+}
+
 uint32_t MCPanel::readButtons()
 {
   uint32_t buttons = 0;
@@ -92,7 +112,7 @@ uint32_t MCPanel::readButtons()
 
   for (uint8_t i = 0; i < 4; i++)
   {
-    uint8_t v = expander.shiftIn(DATA_IO, CLOCK_IO, LSBFIRST);
+    uint8_t v = shiftIn(DATA_IO, CLOCK_IO, LSBFIRST);
     buttons |= (v << (i*8));
   }
 
@@ -151,7 +171,7 @@ void MCPanel::displayHex(uint8_t position, uint8_t hex) {
   displaySS(position, hexss[hex]);
 }
 
-void MCPanel::displayNumber(uint16_t alt, uint16_t spd, int16_t vs, uint16_t hdg) {
+void MCPanel::displayNumber(int16_t alt, int16_t spd, int16_t vs, int16_t hdg) {
 
   String textTemp = (String)alt;
   if(textTemp.length() <= 5){
@@ -200,13 +220,35 @@ void MCPanel::buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDo
 
 void MCPanel::updateLED(){
 
-  espShow(TM1812_LED_PIN,LEDCache,LED_NUM);
-  
+  //espShow(TM1812_LED_PIN,LEDCache,LED_NUM);
+  rmt_data_t led_data[LED_NUM*8];
+  int led, bit;
+  int i = 0;
+  for (led = 0; led < LED_NUM; led++) {
+    for (bit = 0; bit < 8; bit++) {
+      if ( LEDCache[led] & (1 << (8 - bit)) ) {
+        led_data[i].level0 = 1;
+        led_data[i].duration0 = 8;
+        led_data[i].level1 = 0;
+        led_data[i].duration1 = 4;
+      } else {
+        led_data[i].level0 = 1;
+        led_data[i].duration0 = 4;
+        led_data[i].level1 = 0;
+        led_data[i].duration1 = 8;
+      }
+      i++;
+    }
+
+  }
+  // Send the data
+  rmtWrite(rmt_send, led_data, LED_NUM*8);
+
 }
 
-bool MCPanel::enc_update() {
+bool MCPanel::encUpdate(uint8_t res) {
   uint8_t flag = 0;
-  uint8_t res = expander.read() & 0xff;
+  //uint8_t res = expander.read() & 0xff;
   for (uint8_t which = 0; which < 4; which++) {
     uint8_t s = state[which] & 0b00001100;
     s |= (res >> (which * 2)) & 0b00000011;
