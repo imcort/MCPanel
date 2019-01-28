@@ -46,6 +46,9 @@ class MCPanel
     void buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDownFunc)(uint8_t));
     void updateLED();
 
+    bool enc_update();
+    int enc_position[4];
+
   private:
     uint8_t displayCache[DIGIT_NUM];
     PCF8575 expander;
@@ -56,6 +59,9 @@ class MCPanel
 
     uint8_t LEDCache[LED_NUM];
     uint32_t oldButtons;
+
+    uint8_t state[4];
+    
 };
 
 // map of ASCII values to 7-segment

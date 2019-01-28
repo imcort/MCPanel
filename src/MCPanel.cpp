@@ -37,6 +37,17 @@ void MCPanel::begin(){
   expander.pinMode(CLOCK_IO, OUTPUT);
   expander.pinMode(DATA_IO, OUTPUT);
 
+  expander.pinMode(0, INPUT);
+  expander.pinMode(1, INPUT);
+  expander.pinMode(2, INPUT);
+  expander.pinMode(3, INPUT);
+  expander.pinMode(4, INPUT);
+  expander.pinMode(5, INPUT);
+  expander.pinMode(6, INPUT);
+  expander.pinMode(7, INPUT);
+
+  expander.set();
+
   sendCommand(ACTIVATE);
   reset();
 
@@ -215,5 +226,36 @@ void MCPanel::buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDo
 void MCPanel::updateLED(){
 
   espShow(TM1812_LED_PIN,LEDCache,LED_NUM);
-  digitalWrite(TM1812_LED_PIN,HIGH);
+  //digitalWrite(TM1812_LED_PIN,HIGH);
+}
+
+bool MCPanel::enc_update() {
+  uint8_t flag = 0;
+  uint8_t res = expander.read() & 0xff;
+  for (uint8_t which = 0; which < 4; which++) {
+    uint8_t s = state[which] & 0b00001100;
+    s |= (res >> (which * 2)) & 0b00000011;
+    switch (s) {
+      case 0: case 5: case 10: case 15:
+        break;
+      case 2: case 4: case 11: case 13:
+        enc_position[which]++;
+        flag++;
+        break;
+      case 1: case 7: case 8: case 14:
+        enc_position[which]--;
+        flag++;
+        break;
+      case 3: case 12:
+        enc_position[which] += 2;
+        flag++;
+        break;
+      default:
+        enc_position[which] -= 2;
+        flag++;
+        break;
+    }
+    state[which] = (s << 2);
+  }
+  return (bool)flag;
 }
