@@ -45,11 +45,14 @@ class MCPanel
     void displayHex(uint8_t position, uint8_t hex);
     void updateDisplay();
     void displayNumber(int16_t alt, int16_t spd, int16_t vs, int16_t hdg);
-    void buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDownFunc)(uint8_t));
+    void changeCallbackFunc(
+      void (*buttonUpFunc)(uint8_t), 
+      void (*buttonDownFunc)(uint8_t),
+      void (*encoderChange)(uint8_t, int));
     void updateLED();
 
-    bool encUpdate(uint8_t res);
-    int enc_position[4];
+    void encUpdate(uint8_t res);
+    
 
   private:
 
@@ -67,6 +70,8 @@ class MCPanel
     uint32_t oldButtons;
     //Encoder
     uint8_t state[4];
+    uint8_t encoderUpdateFlag;
+    int enc_position[4];
     
 };
 

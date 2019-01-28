@@ -205,7 +205,9 @@ void MCPanel::displayNumber(int16_t alt, int16_t spd, int16_t vs, int16_t hdg) {
 
 }
 
-void MCPanel::buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDownFunc)(uint8_t)){
+void MCPanel::changeCallbackFunc( void (*buttonUpFunc)(uint8_t), 
+                                  void (*buttonDownFunc)(uint8_t),
+                                  void (*encoderChange)(uint8_t, int)){
 
   uint32_t buttons = readButtons();
   uint32_t changes = (buttons ^ oldButtons);
@@ -222,6 +224,13 @@ void MCPanel::buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDo
       }
     }
     oldButtons = buttons;
+  }
+  for(uint8_t i=0;i<4;i++){
+    if(encoderUpdateFlag & (1<<i)){
+      encoderChange(i,enc_position[i]);
+      encoderUpdateFlag &= ~(1<<i);
+    }
+      
   }
 
 }
@@ -254,9 +263,7 @@ void MCPanel::updateLED(){
 
 }
 
-bool MCPanel::encUpdate(uint8_t res) {
-  uint8_t flag = 0;
-  //uint8_t res = expander.read() & 0xff;
+void MCPanel::encUpdate(uint8_t res) {
   for (uint8_t which = 0; which < 4; which++) {
     uint8_t s = state[which] & 0b00001100;
     s |= (res >> (which * 2)) & 0b00000011;
@@ -265,22 +272,21 @@ bool MCPanel::encUpdate(uint8_t res) {
         break;
       case 2: case 4: case 11: case 13:
         enc_position[which]++;
-        flag++;
+        encoderUpdateFlag |= (1 << which);
         break;
       case 1: case 7: case 8: case 14:
         enc_position[which]--;
-        flag++;
+        encoderUpdateFlag |= (1 << which);
         break;
       case 3: case 12:
         enc_position[which] += 2;
-        flag++;
+        encoderUpdateFlag |= (1 << which);
         break;
       default:
         enc_position[which] -= 2;
-        flag++;
+        encoderUpdateFlag |= (1 << which);
         break;
     }
     state[which] = (s << 2);
   }
-  return (bool)flag;
 }
