@@ -1,38 +1,42 @@
 #include <MCPanel.h>
 #include "Wire.h"
 
-// I/O pins on the Arduino connected to strobe, clock, data
-// (power should go to 3.3v and GND)
-MCPanel mcp(8, 9, 10);
+MCPanel mcp;
 
 void setup() {
   Serial.begin(115200);
-
+  pinMode(33, INPUT_PULLUP);
   mcp.begin();
 
-  //for(int i=0;i<16;i++){
-  //
-  //  tm.displayHex(i,15-i);
-  //  }
   Serial.println(Wire.getClock(), DEC);
 
-  tm.displayNumber(24000, 350, -1000, 10);
-  //Serial.println(tm.readButtons(),BIN);
+  mcp.displayNumber(240, 350, -1000, 100);
+  mcp.clearPos(9,12);
+  mcp.updateLED();
 }
 
 void func1(uint8_t i) {
   Serial.print("Key Pressed:");
   Serial.println(i + 1);
+  mcp.displayNumber(i + 1, 350, -1000, 10);
 }
 
 void func2(uint8_t i) {
   Serial.print("Key Released:");
   Serial.println(i + 1);
+  mcp.displayNumber(i + 1, 350, -1000, 10);
+}
 
+void func3(uint8_t i, int j) {
+  Serial.print("Encoder ");
+  Serial.print(i);
+  Serial.print(" Changed:");
+  Serial.println(j);
+  mcp.displayNumber(j, 350, -1000, 10);
 }
 
 void loop() {
 
-  mcp.buttonsCallbackFunc(func2, func1);
-
+  mcp.changeCallbackFunc(func2, func1, func3);
+ 
 }
