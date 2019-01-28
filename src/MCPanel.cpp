@@ -104,15 +104,15 @@ uint32_t MCPanel::readButtons()
   return buttons;
 }
 
-void MCPanel::displayText(String text) {
+void MCPanel::displayText(String text, uint8_t pos, bool willUpdate) {
   uint8_t length = text.length();
-  if(length <= 16)
+  if((length+pos) <= 16)
   {
     for (uint8_t i = 0; i < length; i++) {
-        displayCache[i] = ss[text[i]];
+        displayCache[i+pos] = ss[text[i]];
         //displayASCII(i, text[i]);
     }
-    updateDisplay();
+    if(willUpdate) updateDisplay();
   }
     
 }
@@ -124,7 +124,7 @@ void MCPanel::displaySS(uint8_t position, uint8_t value) { // call 7-segment
 
 void MCPanel::updateDisplay(){   ///OWN
 
-  sendCommand(WRITE_INC);
+  //sendCommand(WRITE_INC);
   expander.digitalWrite(STROBE_IO, LOW);
   expander.shiftOut(DATA_IO, CLOCK_IO, LSBFIRST, 0xc0);   // set starting address to 0
   for (uint8_t i = 0; i < 8; i++)
@@ -143,7 +143,7 @@ void MCPanel::updateDisplay(){   ///OWN
 
   }
   expander.digitalWrite(STROBE_IO, HIGH);
-  sendCommand(ACTIVATE); // set auto increment mode
+  //sendCommand(ACTIVATE); // set auto increment mode
 }
 
 void MCPanel::displayASCII(uint8_t position, uint8_t ascii) {
@@ -156,47 +156,21 @@ void MCPanel::displayHex(uint8_t position, uint8_t hex) {
 
 void MCPanel::displayNumber(uint16_t alt, uint16_t spd, int16_t vs, uint16_t hdg) {
 
-  if(alt < 100000){
-
-    displayCache[0] = hexss[alt/10000];
-    displayCache[1] = hexss[alt/1000%10];
-    displayCache[2] = hexss[alt/100%10];
-    displayCache[3] = hexss[alt/10%10];
-    displayCache[4] = hexss[alt/1%10];
-
+  String textTemp = (String)alt;
+  if(textTemp.length() <= 5){
+    displayText(textTemp,5-textTemp.length(),false);
   }
-  if(spd < 1000){
-
-    displayCache[5] = hexss[spd/100];
-    displayCache[6] = hexss[spd/10%10];
-    displayCache[7] = hexss[spd/1%10];
-
+  textTemp = (String)spd;
+  if(textTemp.length() <= 3){
+    displayText(textTemp,8-textTemp.length(),false);
   }
-  if((vs > 0) && (vs < 10000)){
-
-    displayCache[8] = 0x00;
-    displayCache[9] = hexss[vs/1000];
-    displayCache[10] = hexss[vs/100%10];
-    displayCache[11] = hexss[vs/10%10];
-    displayCache[12] = hexss[vs/1%10];
-
+  textTemp = (String)vs;
+  if(textTemp.length() <= 5){
+    displayText(textTemp,13-textTemp.length(),false);
   }
-
-  if((vs < 0) && (vs > -10000)){
-
-    displayCache[8] = ss['-'];
-    displayCache[9] = hexss[-vs/1000];
-    displayCache[10] = hexss[-vs/100%10];
-    displayCache[11] = hexss[-vs/10%10];
-    displayCache[12] = hexss[-vs/1%10];
-
-  }
-  if(hdg < 1000){
-
-    displayCache[13] = hexss[hdg/100];
-    displayCache[14] = hexss[hdg/10%10];
-    displayCache[15] = hexss[hdg/1%10];
-
+  textTemp = (String)hdg;
+  if(textTemp.length() <= 3){
+    displayText(textTemp,16-textTemp.length(),false);
   }
   updateDisplay();
 

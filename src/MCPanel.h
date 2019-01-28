@@ -37,7 +37,7 @@ class MCPanel
     void sendCommand(uint8_t value);
     void reset();
     uint32_t readButtons();
-    void displayText(String text);
+    void displayText(String text, uint8_t pos = 0, bool willUpdate = true);
     void displaySS(uint8_t position, uint8_t value);
     void displayASCII(uint8_t position, uint8_t ascii);
     void displayHex(uint8_t position, uint8_t hex);
