@@ -48,8 +48,8 @@ void MCPanel::begin(){
 
   expander.set();
 
-  sendCommand(ACTIVATE);
   reset();
+  sendCommand(ACTIVATE);
 
   oldButtons = readButtons();
   
@@ -69,21 +69,18 @@ void MCPanel::sendCommand(uint8_t value)
   expander.digitalWrite(STROBE_IO, HIGH);
 }
 
-void MCPanel::reset() {
-  sendCommand(WRITE_INC); // set auto increment mode
-  expander.digitalWrite(STROBE_IO, LOW);
-  expander.shiftOut(DATA_IO, CLOCK_IO, LSBFIRST, 0xc0);   // set starting address to 0
-  for (uint8_t i = 0; i < 16; i++)
-  {
-    expander.shiftOut(DATA_IO, CLOCK_IO, LSBFIRST, 0x00);
-  }
-  for (uint8_t i = 0; i < 16; i++)
+void MCPanel::clearPos(uint8_t startPos, uint8_t stopPos, bool willUpdate){
+
+  for (uint8_t i = startPos; i < (stopPos + 1); i++)
   {
     displayCache[i] = 0x00;
   }
-  expander.digitalWrite(STROBE_IO, HIGH);
-  sendCommand(WRITE_INC); // set auto increment mode
-  sendCommand(ACTIVATE);
+
+  if(willUpdate) updateDisplay();
+}
+
+void MCPanel::reset() {
+  clearPos(0,15);
 }
 
 uint32_t MCPanel::readButtons()
@@ -158,18 +155,22 @@ void MCPanel::displayNumber(uint16_t alt, uint16_t spd, int16_t vs, uint16_t hdg
 
   String textTemp = (String)alt;
   if(textTemp.length() <= 5){
+    clearPos(0,4,false);
     displayText(textTemp,5-textTemp.length(),false);
   }
   textTemp = (String)spd;
   if(textTemp.length() <= 3){
+    clearPos(5,7,false);
     displayText(textTemp,8-textTemp.length(),false);
   }
   textTemp = (String)vs;
   if(textTemp.length() <= 5){
+    clearPos(8,12,false);
     displayText(textTemp,13-textTemp.length(),false);
   }
   textTemp = (String)hdg;
   if(textTemp.length() <= 3){
+    clearPos(13,15,false);
     displayText(textTemp,16-textTemp.length(),false);
   }
   updateDisplay();
@@ -200,7 +201,7 @@ void MCPanel::buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDo
 void MCPanel::updateLED(){
 
   espShow(TM1812_LED_PIN,LEDCache,LED_NUM);
-  //digitalWrite(TM1812_LED_PIN,HIGH);
+  
 }
 
 bool MCPanel::enc_update() {
