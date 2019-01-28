@@ -47,7 +47,7 @@ void MCPanel::begin(){
   expander.pinMode(6, INPUT);
   expander.pinMode(7, INPUT);
 
-  expander.set();
+  //expander.set();
 
   reset();
   sendCommand(ACTIVATE);
@@ -55,8 +55,8 @@ void MCPanel::begin(){
   oldButtons = readButtons();
   
   //TM1812-Part
-  //pinMode(LED_IO, OUTPUT);
-  rmt_send = rmtInit(32, true, RMT_MEM_64);
+  pinMode(LED_IO, OUTPUT);
+  rmt_send = rmtInit(LED_IO, true, RMT_MEM_64);
   rmtSetTick(rmt_send, 100);
   for(int i=0;i<LED_NUM;i++)
     LEDCache[i] = 0x02;
@@ -89,7 +89,7 @@ void MCPanel::reset() {
 uint8_t MCPanel::shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
     uint8_t value = 0;
     uint8_t i;
-	  expander.digitalWrite(dataPin, HIGH);
+	  //expander.digitalWrite(dataPin, HIGH);
     for(i = 0; i < 8; ++i) {
         expander.digitalWrite(clockPin, HIGH);
         uint16_t gpidRead = expander.read();
@@ -151,13 +151,13 @@ void MCPanel::updateDisplay(){   ///OWN
       tempData |= (displayCache[15-j] & (0x80 >> i)) << i >> j;
     }
     expander.shiftOut(DATA_IO, CLOCK_IO, LSBFIRST, tempData);
-
+    encUpdate(expander.read() & 0xff);
     tempData = 0x00;  //SEG9-10
     for (uint8_t j=0; j<8; j++){
       tempData |= (displayCache[7-j] & (0x80 >> i)) << i >> j;
     }
     expander.shiftOut(DATA_IO, CLOCK_IO, LSBFIRST, tempData);
-
+    encUpdate(expander.read() & 0xff);
   }
   expander.digitalWrite(STROBE_IO, HIGH);
   //sendCommand(ACTIVATE); // set auto increment mode
@@ -221,7 +221,7 @@ void MCPanel::buttonsCallbackFunc(void (*buttonUpFunc)(uint8_t), void (*buttonDo
 void MCPanel::updateLED(){
 
   //espShow(TM1812_LED_PIN,LEDCache,LED_NUM);
-  rmt_data_t led_data[LED_NUM*8];
+  rmt_data_t led_data[288];
   int led, bit;
   int i = 0;
   for (led = 0; led < LED_NUM; led++) {
@@ -242,7 +242,7 @@ void MCPanel::updateLED(){
 
   }
   // Send the data
-  rmtWrite(rmt_send, led_data, LED_NUM*8);
+  rmtWrite(rmt_send, led_data, 288);
 
 }
 
