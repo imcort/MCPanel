@@ -36,23 +36,16 @@ class MCPanel
 
     void begin();
     void sendCommand(uint8_t value);
-    void reset();
     uint32_t readButtons();
     void clearPos(uint8_t startPos, uint8_t stopPos, bool willUpdate = true);
     void displayText(String text, uint8_t pos = 0, bool willUpdate = true);
-    void displaySS(uint8_t position, uint8_t value);
-    void displayASCII(uint8_t position, uint8_t ascii);
-    void displayHex(uint8_t position, uint8_t hex);
     void updateDisplay();
     void displayNumber(int16_t alt, int16_t spd, int16_t vs, int16_t hdg);
-    void changeCallbackFunc(
-      void (*buttonUpFunc)(uint8_t), 
-      void (*buttonDownFunc)(uint8_t),
-      void (*encoderChange)(uint8_t, int));
+    void changeCallbackFunc(void (*buttonUpFunc)(uint8_t), 
+                            void (*buttonDownFunc)(uint8_t),
+                            void (*encoderChange)(uint8_t, int));
     void updateLED();
-
     void encUpdate(uint8_t res);
-    
 
   private:
 
@@ -305,10 +298,6 @@ const uint8_t ss[] = {
 0x0,
 
 
-};
-
-const uint8_t hexss[16] = {
-  ss['0'], ss['1'], ss['2'], ss['3'], ss['4'], ss['5'], ss['6'], ss['7'], ss['8'], ss['9'], ss['A'], ss['b'], ss['C'], ss['d'], ss['E'], ss['F']
 };
 
 #endif

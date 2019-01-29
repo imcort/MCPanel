@@ -49,7 +49,7 @@ void MCPanel::begin(){
 
   //expander.set();
 
-  reset();
+  clearPos(0,15);
   sendCommand(ACTIVATE);
 
   oldButtons = readButtons();
@@ -80,10 +80,6 @@ void MCPanel::clearPos(uint8_t startPos, uint8_t stopPos, bool willUpdate){
   }
 
   if(willUpdate) updateDisplay();
-}
-
-void MCPanel::reset() {
-  clearPos(0,15);
 }
 
 uint8_t MCPanel::shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
@@ -127,16 +123,10 @@ void MCPanel::displayText(String text, uint8_t pos, bool willUpdate) {
   {
     for (uint8_t i = 0; i < length; i++) {
         displayCache[i+pos] = ss[text[i]];
-        //displayASCII(i, text[i]);
     }
     if(willUpdate) updateDisplay();
   }
     
-}
-
-void MCPanel::displaySS(uint8_t position, uint8_t value) { // call 7-segment
-  displayCache[position] = value;//ReverseBits(value);
-  updateDisplay();
 }
 
 void MCPanel::updateDisplay(){   ///OWN
@@ -161,14 +151,6 @@ void MCPanel::updateDisplay(){   ///OWN
   }
   expander.digitalWrite(STROBE_IO, HIGH);
   //sendCommand(ACTIVATE); // set auto increment mode
-}
-
-void MCPanel::displayASCII(uint8_t position, uint8_t ascii) {
-  displaySS(position, ss[ascii]);
-}
-
-void MCPanel::displayHex(uint8_t position, uint8_t hex) {
-  displaySS(position, hexss[hex]);
 }
 
 void MCPanel::displayNumber(int16_t alt, int16_t spd, int16_t vs, int16_t hdg) {
@@ -230,9 +212,7 @@ void MCPanel::changeCallbackFunc( void (*buttonUpFunc)(uint8_t),
       encoderChange(i,enc_position[i]);
       encoderUpdateFlag &= ~(1<<i);
     }
-      
   }
-
 }
 
 void MCPanel::updateLED(){
@@ -279,12 +259,12 @@ void MCPanel::encUpdate(uint8_t res) {
         encoderUpdateFlag |= (1 << which);
         break;
       case 3: case 12:
-        enc_position[which] += 2;
-        encoderUpdateFlag |= (1 << which);
+        //enc_position[which] ++;//= 2;
+        //encoderUpdateFlag |= (1 << which);
         break;
       default:
-        enc_position[which] -= 2;
-        encoderUpdateFlag |= (1 << which);
+        //enc_position[which] --;//= 2;
+        //encoderUpdateFlag |= (1 << which);
         break;
     }
     state[which] = (s << 2);
