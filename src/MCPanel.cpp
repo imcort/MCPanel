@@ -2,7 +2,7 @@
 #include "MCPanel.h"
 #include "esp32-hal.h"
 
-//extern "C" void espShow(uint8_t pin, uint8_t *pixels, uint32_t numBytes);
+extern "C" void espShow(uint8_t pin, uint8_t *pixels, uint32_t numBytes);
 
 // uint8_t ReverseBits(uint8_t ch){
 // ch = (ch & 0x55) << 1 | (ch >> 1) & 0x55;
@@ -47,8 +47,6 @@ void MCPanel::begin(){
   expander.pinMode(6, INPUT);
   expander.pinMode(7, INPUT);
 
-  //expander.set();
-
   clearPos(0,15);
   sendCommand(ACTIVATE);
 
@@ -56,8 +54,8 @@ void MCPanel::begin(){
   
   //TM1812-Part
   pinMode(LED_IO, OUTPUT);
-  rmt_send = rmtInit(LED_IO, true, RMT_MEM_64);
-  rmtSetTick(rmt_send, 100);
+  // rmt_send = rmtInit(LED_IO, true, RMT_MEM_64);
+  // rmtSetTick(rmt_send, 100);
   for(int i=0;i<LED_NUM;i++)
     LEDCache[i] = 0x02;
   LEDCache[8] = 100;
@@ -217,29 +215,29 @@ void MCPanel::changeCallbackFunc( void (*buttonUpFunc)(uint8_t),
 
 void MCPanel::updateLED(){
 
-  //espShow(TM1812_LED_PIN,LEDCache,LED_NUM);
-  rmt_data_t led_data[288];
-  int led, bit;
-  int i = 0;
-  for (led = 0; led < LED_NUM; led++) {
-    for (bit = 0; bit < 8; bit++) {
-      if ( LEDCache[led] & (1 << (8 - bit)) ) {
-        led_data[i].level0 = 1;
-        led_data[i].duration0 = 8;
-        led_data[i].level1 = 0;
-        led_data[i].duration1 = 4;
-      } else {
-        led_data[i].level0 = 1;
-        led_data[i].duration0 = 4;
-        led_data[i].level1 = 0;
-        led_data[i].duration1 = 8;
-      }
-      i++;
-    }
+  espShow(TM1812_LED_PIN,LEDCache,LED_NUM);
+  // rmt_data_t led_data[288];
+  // int led, bit;
+  // int i = 0;
+  // for (led = 0; led < LED_NUM; led++) {
+  //   for (bit = 0; bit < 8; bit++) {
+  //     if ( LEDCache[led] & (1 << (8 - bit)) ) {
+  //       led_data[i].level0 = 1;
+  //       led_data[i].duration0 = 8;
+  //       led_data[i].level1 = 0;
+  //       led_data[i].duration1 = 4;
+  //     } else {
+  //       led_data[i].level0 = 1;
+  //       led_data[i].duration0 = 4;
+  //       led_data[i].level1 = 0;
+  //       led_data[i].duration1 = 8;
+  //     }
+  //     i++;
+  //   }
 
-  }
-  // Send the data
-  rmtWrite(rmt_send, led_data, 288);
+  // }
+  // // Send the data
+  // rmtWrite(rmt_send, led_data, 288);
 
 }
 
@@ -259,12 +257,12 @@ void MCPanel::encUpdate(uint8_t res) {
         encoderUpdateFlag |= (1 << which);
         break;
       case 3: case 12:
-        //enc_position[which] ++;//= 2;
-        //encoderUpdateFlag |= (1 << which);
+        enc_position[which] += 2;
+        encoderUpdateFlag |= (1 << which);
         break;
       default:
-        //enc_position[which] --;//= 2;
-        //encoderUpdateFlag |= (1 << which);
+        enc_position[which] -= 2;
+        encoderUpdateFlag |= (1 << which);
         break;
     }
     state[which] = (s << 2);

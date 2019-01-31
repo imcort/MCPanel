@@ -59,7 +59,7 @@ class MCPanel
 
     //TM1812
     uint8_t LEDCache[LED_NUM];
-    rmt_obj_t* rmt_send;
+    //rmt_obj_t* rmt_send;
     uint32_t oldButtons;
     //Encoder
     uint8_t state[4];
@@ -68,6 +68,13 @@ class MCPanel
     
 };
 
+/*
+const uint8_t keyValue[] = {
+  0,//0
+  
+
+}
+*/
 // map of ASCII values to 7-segment
 const uint8_t ss[] = {
   // 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // padding for non-char ASCII
