@@ -18,11 +18,12 @@
 #define TM1812_LED_PIN      32
 
 //TM1629 Defines:
-#define ACTIVATE 0x8f
+#define BRIGHTNESS 1
+#define ACTIVATE (0x88 | BRIGHTNESS)
 #define BUTTONS 0x42
 #define WRITE_LOC 0x44
 #define WRITE_INC 0x40
-#define BRIGHTNESS 0x80
+
 
 #define DIGIT_NUM 16
 
