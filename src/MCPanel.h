@@ -41,7 +41,7 @@ class MCPanel
     void clearPos(uint8_t startPos, uint8_t stopPos, bool willUpdate = true);
     void displayText(String text, uint8_t pos = 0, bool willUpdate = true);
     void updateDisplay();
-    void displayNumber(int16_t alt, int16_t spd, int16_t vs, int16_t hdg);
+    void displayNumber(uint8_t pos, int16_t value);
     void changeCallbackFunc(void (*buttonUpFunc)(uint8_t), 
                             void (*buttonDownFunc)(uint8_t),
                             void (*encoderChange)(uint8_t, int));
