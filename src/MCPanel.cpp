@@ -115,12 +115,18 @@ uint32_t MCPanel::readButtons()
   return buttons;
 }
 
-void MCPanel::displayText(String text, uint8_t pos, bool willUpdate) {
+void MCPanel::displayText(String text, int8_t pos, bool willUpdate) {
   uint8_t length = text.length();
   if((length+pos) <= 16)
   {
     for (uint8_t i = 0; i < length; i++) {
+      if(text[i] == '.'){
+        displayCache[i+pos-1] |= 0x08;
+        pos--;
+      }
+      else{
         displayCache[i+pos] = ss[text[i]];
+      }
     }
     if(willUpdate) updateDisplay();
   }
@@ -193,8 +199,7 @@ void MCPanel::displayNumber(uint8_t pos, int16_t value) {
 
 }
 
-void MCPanel::changeCallbackFunc( void (*buttonUpFunc)(uint8_t), 
-                                  void (*buttonDownFunc)(uint8_t),
+void MCPanel::changeCallbackFunc( void (*buttonChange)(bool, uint8_t), 
                                   void (*encoderChange)(uint8_t, int)){
 
   uint32_t buttons = readButtons();
@@ -203,12 +208,13 @@ void MCPanel::changeCallbackFunc( void (*buttonUpFunc)(uint8_t),
     for (uint8_t i = 0; i < 32; i++) {
       uint32_t mask = (0x00000001 << i);
       if (mask & changes) {
-        if (buttons & mask) {
-          buttonDownFunc(i+1);
-        }
-        else {
-          buttonUpFunc(i+1);
-        }
+        buttonChange((bool)(buttons & mask),i+1);
+        // if (buttons & mask) {
+        //   buttonDownFunc(i+1);
+        // }
+        // else {
+        //   buttonUpFunc(i+1);
+        // }
       }
     }
     oldButtons = buttons;

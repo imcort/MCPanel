@@ -39,11 +39,10 @@ class MCPanel
     void sendCommand(uint8_t value);
     uint32_t readButtons();
     void clearPos(uint8_t startPos, uint8_t stopPos, bool willUpdate = true);
-    void displayText(String text, uint8_t pos = 0, bool willUpdate = true);
+    void displayText(String text, int8_t pos = 0, bool willUpdate = true);
     void updateDisplay();
     void displayNumber(uint8_t pos, int16_t value);
-    void changeCallbackFunc(void (*buttonUpFunc)(uint8_t), 
-                            void (*buttonDownFunc)(uint8_t),
+    void changeCallbackFunc(void (*buttonChange)(bool, uint8_t), 
                             void (*encoderChange)(uint8_t, int));
     void updateLED();
     void encUpdate(uint8_t res);

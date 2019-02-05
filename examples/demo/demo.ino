@@ -11,26 +11,28 @@ void setup() {
   Serial.println(Wire.getClock(), DEC);
 
   mcp.displayNumber(0,0);
-   mcp.displayNumber(1,0);
-    mcp.displayNumber(2,0);
-     mcp.displayNumber(3,0);
+  mcp.displayNumber(1,0);
+  mcp.displayNumber(2,0);
+  mcp.displayNumber(3,0);
   mcp.clearPos(9,12);
   mcp.updateLED();
 }
 
-void func1(uint8_t i) {
-  Serial.print("Key Pressed:");
-  Serial.println(i + 1);
-  mcp.displayNumber(0,i);
+void func1(bool i, uint8_t j) {
+
+  switch(i){
+    case 0:
+      Serial.print("Key Pressed:");
+      break;
+    case 1:
+      Serial.print("Key Released:");
+  }
+  Serial.println(j + 1);
+  mcp.displayNumber(0,j);
+  
 }
 
-void func2(uint8_t i) {
-  Serial.print("Key Released:");
-  Serial.println(i + 1);
-  mcp.displayNumber(1,i);
-}
-
-void func3(uint8_t i, int j) {
+void func2(uint8_t i, int j) {
   Serial.print("Encoder ");
   Serial.print(i);
   Serial.print(" Changed:");
@@ -40,6 +42,6 @@ void func3(uint8_t i, int j) {
 
 void loop() {
 
-  mcp.changeCallbackFunc(func2, func1, func3);
+  mcp.changeCallbackFunc(func1, func2);
  
 }
