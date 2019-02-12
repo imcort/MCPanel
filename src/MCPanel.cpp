@@ -223,8 +223,23 @@ void MCPanel::changeCallbackFunc( void (*buttonChange)(bool, uint8_t),
   for(uint8_t i=0;i<4;i++){
     if(encoderUpdateFlag & (1<<i)){
       if(enc_position[i] % 2 == 0){
-        encoderChange(i,enc_position[i]/2);
+
+        if((i==3 || i==2) && enc_position[i] < 0 )
+          enc_position[i] = 0;
+
+        if(i==0){
+          if(enc_position[i] < 0)
+            enc_position[i] += 720;
+          else if(enc_position[i] > 719)
+            enc_position[i] -= 720;
+        }
+
+        if(i==3 || i==1)
+          encoderChange(i,(enc_position[i]/2)*100);
+        else
+          encoderChange(i,enc_position[i]/2);
         encoderUpdateFlag &= ~(1<<i);
+
       }
     }
   }
