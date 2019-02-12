@@ -30,6 +30,51 @@
 //TM1812 Defines:
 #define LED_NUM 36
 
+#define KEY_1 4
+  #define KEY_1_W 9
+#define KEY_2 8
+  #define KEY_2_W 10
+#define KEY_3 12
+  #define KEY_3_W 11
+#define KEY_4 16
+  #define KEY_4_W 6
+
+#define KEY_5 20
+
+#define KEY_6 24
+#define KEY_7 28
+
+#define KEY_8 32
+
+#define KEY_9 3
+#define KEY_10 7
+
+#define KEY_11 11
+
+#define KEY_12 19
+#define KEY_13 15
+
+#define KEY_14 23
+
+#define KEY_15 27
+#define KEY_16 31
+
+#define KEY_17 2
+#define KEY_18 6
+
+#define KEY_19 10
+  #define KEY__W 29
+#define KEY_20 14
+  #define KEY__W 28
+#define KEY_21 30
+  #define KEY__W 27
+#define KEY_22 26
+  #define KEY__W 26
+#define KEY_23 22
+  #define KEY__W 25
+#define KEY_24 18
+  #define KEY__W 24
+
 class MCPanel
 {
   public:
@@ -46,6 +91,7 @@ class MCPanel
                             void (*encoderChange)(uint8_t, int));
     void updateLED();
     void encUpdate(uint8_t res);
+    void setLED(uint8_t pos, uint8_t value, bool willUpdate = true);
 
   private:
 
@@ -175,38 +221,6 @@ const uint8_t ss[] = {
   // 0x70, /* } */
   // 0x01, /* ~ */
   // 0x00, /* (del) */
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
-0x0,
 0x0,
 0x4C,
 0x6,

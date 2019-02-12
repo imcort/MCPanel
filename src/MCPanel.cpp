@@ -52,6 +52,7 @@ void MCPanel::begin(){
 
   oldButtons = readButtons();
   
+  
   //TM1812-Part
   pinMode(LED_IO, OUTPUT);
   // rmt_send = rmtInit(LED_IO, true, RMT_MEM_64);
@@ -125,7 +126,7 @@ void MCPanel::displayText(String text, int8_t pos, bool willUpdate) {
         pos--;
       }
       else{
-        displayCache[i+pos] = ss[text[i]];
+        displayCache[i+pos] = ss[text[i]-32];
       }
     }
     if(willUpdate) updateDisplay();
@@ -255,6 +256,11 @@ void MCPanel::updateLED(){
   // // Send the data
   // rmtWrite(rmt_send, led_data, 288);
 
+}
+
+void MCPanel::setLED(uint8_t pos, uint8_t value, bool willUpdate){
+  LEDCache[pos] = value;
+  if(willUpdate) updateLED();
 }
 
 void MCPanel::encUpdate(uint8_t res) {

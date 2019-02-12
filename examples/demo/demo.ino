@@ -14,7 +14,6 @@ void setup() {
   mcp.displayNumber(1,0);
   mcp.displayNumber(2,0);
   mcp.displayNumber(3,0);
-  mcp.clearPos(9,12);
   mcp.updateLED();
 }
 
@@ -27,7 +26,7 @@ void func1(bool i, uint8_t j) {
     case 1:
       Serial.print("Key Released:");
   }
-  Serial.println(j + 1);
+  Serial.println(j);
   mcp.displayNumber(0,j);
   
 }
@@ -41,7 +40,14 @@ void func2(uint8_t i, int j) {
 }
 
 void loop() {
-
+//for(int j=0;j<36;j++) mcp.setLED(j,0);
+//  for(int i=0;i<36;i++){
+//  //mcp.begin();
+//  
+//  mcp.setLED(i,random(1,20));
+//  mcp.displayNumber(3,i);
+//  delay(1000);
+//  }
   mcp.changeCallbackFunc(func1, func2);
  
 }
